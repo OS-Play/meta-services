@@ -1,0 +1,19 @@
+#!/sbin/openrc-run
+
+description="network connection manager."
+
+depend()
+{
+    need dbus
+    provide networkmanager NetworkManager
+}
+
+start_pre()
+{
+    mkdir -p /run/NetworkManager/
+}
+
+command="$DAEMON"
+command_args="$ARGS"
+pidfile="${PIDFILE}"
+supervisor=supervise-daemon

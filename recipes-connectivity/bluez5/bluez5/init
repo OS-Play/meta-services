@@ -1,0 +1,15 @@
+#!/sbin/openrc-run
+
+description="bluetooth."
+
+depend()
+{
+    need dbus
+    provide bluetooth bluz5
+}
+
+command="$DAEMON"
+command_args="$NOPLUGIN_OPTION"
+command_background=true
+pidfile="${PIDFILE}"
+supervisor=supervise-daemon

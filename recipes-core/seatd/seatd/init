@@ -1,0 +1,36 @@
+#!/sbin/openrc-run
+
+description="Start seatd daemon."
+
+killproc() {
+    pid=`/bin/pidof $1`
+    [ "$pid" != "" ] && kill $pid
+}
+
+depend()
+{
+    after clock
+    need localmount
+    keyword -seatd
+    provide seatd
+}
+
+start()
+{
+    seatd -g video -n 1 > /tmp/seatd-start-notify &
+    [ -s /tmp/seatd-start-notify ] && return 0
+    sleep 0.1
+    [ -s /tmp/seatd-start-notify ] && return 0
+    sleep 0.5
+    [ -s /tmp/seatd-start-notify ] && return 0
+    sleep 5
+    [ -s /tmp/seatd-start-notify ] && return 0
+    return 1
+}
+
+stop()
+{
+    echo "Stopping seatd"
+    killproc seatd
+    return 0
+}

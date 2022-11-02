@@ -1,0 +1,58 @@
+#!/sbin/openrc-run
+
+description="D-Bus systemwide message bus"
+supervisor=supervise-daemon
+
+depend()
+{
+    after clock
+    provide dbus
+}
+
+start()
+{
+  mkdir -p "`dirname $PIDFILE`"
+  chown $DAEMONUSER:$DAEMONUSER "`dirname $PIDFILE`"
+  if [ -e $PIDFILE ]; then
+    PIDDIR=/proc/$(cat $PIDFILE)
+    if [ -d ${PIDDIR} -a  "$(readlink -f ${PIDDIR}/exe)" = "${DAEMON}" ]; then 
+      einfo "$DESC already started; not starting."
+    else
+      einfo "Removing stale PID file $PIDFILE."
+      rm -f $PIDFILE
+    fi
+  fi
+
+  if [ ! -d $UUIDDIR ]; then
+    mkdir -p $UUIDDIR
+    chown $DAEMONUSER $UUIDDIR
+    chgrp $DAEMONUSER $UUIDDIR
+  fi
+
+  dbus-uuidgen --ensure
+
+  einfo "Starting $DESC: "
+  start-stop-daemon --start --quiet --pidfile $PIDFILE \
+    --user $DAEMONUSER --exec $DAEMON -- --system $PARAMS
+  einfo "$NAME."
+  if [ -d $EVENTDIR ]; then
+      run-parts --arg=start $EVENTDIR
+  fi
+}
+
+stop()
+{
+  if [ -d $EVENTDIR ]; then
+      # TODO: --reverse when busybox supports it
+      run-parts --arg=stop $EVENTDIR
+  fi
+  einfo "Stopping $DESC: "
+  start-stop-daemon -o --stop  --quiet --pidfile $PIDFILE \
+    --user $DAEMONUSER
+  # We no longer include these arguments so that start-stop-daemon
+  # can do its job even given that we may have been upgraded.
+  # We rely on the pidfile being sanely managed
+  # --exec $DAEMON -- --system $PARAMS
+  einfo "$NAME."
+  rm -f $PIDFILE
+}
