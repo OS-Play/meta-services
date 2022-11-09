@@ -1,0 +1,51 @@
+#!/sbin/openrc-run
+
+description="Start adbd daemon"
+
+depend()
+{
+    need localmount
+    keyword -adbd -adb
+    provide adbd
+}
+
+start_pre()
+{
+    android-gadget-setup
+}
+
+start_post()
+{
+    android-gadget-start
+}
+
+stop_pre()
+{
+    udc="/sys/kernel/config/usb_gadget/adb/UDC"
+    [ -f "$udc" ] && echo -n "" > "$udc"
+}
+
+stop_post()
+{
+    [ -d "/sys/kernel/config/usb_gadget/adb" ] || exit 0
+
+    cd /sys/kernel/config/usb_gadget/adb
+    umount /dev/usb-ffs/adb
+
+    rm configs/c.1/ffs.usb0
+
+    rmdir configs/c.1/strings/0x409
+    rmdir configs/c.1
+
+    rmdir functions/ffs.usb0
+    rmdir strings/0x409
+
+    cd ..
+    rmdir adb
+}
+
+command="adbd"
+command_args=""
+command_background=true
+pidfile="/run/adbd.pid"
+supervisor=supervise-daemon
