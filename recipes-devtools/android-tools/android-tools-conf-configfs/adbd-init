@@ -16,7 +16,7 @@ start_pre()
 
 start_post()
 {
-    android-gadget-start
+    android-gadget-start &
 }
 
 stop_pre()
