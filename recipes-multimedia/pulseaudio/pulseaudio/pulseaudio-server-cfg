@@ -1,0 +1,2 @@
+# Add extra args to daemon
+# EXTRA_ARGS="-vv --log-target=file:/var/log/pulse.log"

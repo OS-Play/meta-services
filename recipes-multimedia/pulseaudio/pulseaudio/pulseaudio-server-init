@@ -1,0 +1,21 @@
+#!@sbindir@/openrc-run
+
+description="Start pulseaudio-server deamon"
+
+depend()
+{
+    after bootmisc alsa-state
+    keyword -pulseaudio
+    provide pulseaudio
+}
+
+start_pre()
+{
+    [ -f "/etc/profile.d/pulse.sh" ] && source /etc/profile.d/pulse.sh
+}
+
+command="pulseaudio"
+command_args="--system --disallow-exit --use-pid-file=false ${EXTRA_ARGS}"
+command_background=true
+pidfile="/run/pulse/pid"
+supervisor=supervise-daemon

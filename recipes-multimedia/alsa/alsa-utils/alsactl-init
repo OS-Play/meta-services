@@ -1,0 +1,16 @@
+#!@sbindir@/openrc-run
+
+description="Start alsactl rdeamon"
+
+depend()
+{
+    need localmount
+    keyword -alsa
+    provide alsactl asound sound
+}
+
+command="alsactl"
+command_args="rdaemon"
+command_background=true
+pidfile="/run/alsa-state.pid"
+supervisor=supervise-daemon
