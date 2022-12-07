@@ -1,0 +1,17 @@
+#!@sbindir@/openrc-run
+
+description="Start ealyoom daemon"
+
+depend()
+{
+    after seatd udev
+    need localmount
+    keyword -ealyoom
+    provide ealyoom
+}
+
+command="/usr/bin/earlyoom"
+command_args="${ARGS}"
+command_background=true
+pidfile="/run/earlyoom.pid"
+supervisor=supervise-daemon
