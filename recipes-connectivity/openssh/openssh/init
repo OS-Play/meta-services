@@ -1,0 +1,32 @@
+#!@sbindir@/openrc-run
+
+description='start and stop the OpenBSD "secure shell" daemon'
+
+depend()
+{
+    need localmount
+    keyword -openssh -sshd
+    provide sshd
+}
+
+start_pre()
+{
+    # /etc/default/ssh may set SYSCONFDIR and SSHD_OPTS
+    if test -f /etc/default/ssh; then
+        . /etc/default/ssh
+    fi
+
+    # Create the PrivSep empty dir if necessary
+    if [ ! -d /var/run/sshd ]; then
+        mkdir /var/run/sshd
+        chmod 0755 /var/run/sshd
+    fi
+
+    /usr/libexec/openssh/sshd_check_keys
+}
+
+command="/usr/sbin/sshd"
+command_args="$SSHD_OPTS"
+command_background=true
+pidfile="/var/run/sshd.pid"
+supervisor=supervise-daemon
